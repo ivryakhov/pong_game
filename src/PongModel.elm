@@ -2,13 +2,13 @@ module PongModel (..) where
 
 import Time exposing (..)
 
+
 type alias Input =
   { space : Bool
   , paddle1 : Int
   , paddle2 : Int
   , delta : Time
   }
-
 
 type alias Object a =
   { a |
@@ -18,14 +18,11 @@ type alias Object a =
         vy : Float
   }
 
-
 type alias Ball =
   Object {}
 
-
 type alias Player =
   Object { score : Int }
-
 
 type State = Play | Pause
 
@@ -51,5 +48,4 @@ defaultGame =
   , player1 = player (20-halfWidth)
   , player2 = player (halfWidth-20)
   }
-
 

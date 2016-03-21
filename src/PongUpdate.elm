@@ -52,8 +52,8 @@ stepBall t ({x,y,vx,vy} as ball) player1 player2 =
       { ball |
                vx = stepV vx (ball `within` player1)
                              (ball `within` player2),
-               vy = stepV vy (y < 7 - halfHeight)
-                             (y > halfHeight - 7)
+               vy = stepV vy (y < 10 - halfHeight)
+                             (y > halfHeight - 10)
       }
   in
     if not (ball.x |> near 0 halfWidth) then
