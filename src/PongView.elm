@@ -26,7 +26,8 @@ dottedLine =
   }
 
 txt f = leftAligned << f << Text.monospace << Text.color textColor << Text.fromString
-msg = "SPACE to start, WS and &uarr;&darr; to move"
+msg1 = "SPACE to start, WS and &uarr;&darr; to move"
+msg2 = "SPACE to pause the game"
 
 
 displayObj : Object a -> Shape -> Form
@@ -46,9 +47,9 @@ display (w,h) {state,ball,player1,player2} =
           , toForm (scores player1 player2)
             |> move (0, gameHeight/2 - 40)
           , toForm (if state == Play then
-                      spacer 1 1
+                      txt identity msg2
                     else
-                      txt identity msg)
+                      txt identity msg1)
             |> move (0, 40 - gameHeight/2)
           ]
 

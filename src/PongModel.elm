@@ -4,8 +4,7 @@ import Time exposing (..)
 
 
 type alias Input =
-  { space : Bool
-  , paddle1 : Int
+  { paddle1 : Int
   , paddle2 : Int
   , delta : Time
   }
@@ -33,6 +32,11 @@ type alias Game =
   , player1 : Player
   , player2 : Player
   }
+
+type Action
+  = ToggleState
+  | MoveOn Input
+  | NoOp
 
 (gameWidth, gameHeight) = (600,400)
 (halfWidth, halfHeight) = (300,200)

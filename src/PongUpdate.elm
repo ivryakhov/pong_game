@@ -9,10 +9,24 @@ gameState =
   Signal.foldp stepGame defaultGame input
 
 
-stepGame : Input -> Game -> Game
-stepGame input game =
+stepGame : Action -> Game -> Game
+stepGame action game =
+  case action of
+    ToggleState ->
+      toggleGameState game
+
+    MoveOn input ->
+      case game.state of
+        Pause -> game
+        Play  -> moveOn input game
+
+    NoOp ->
+      game
+
+moveOn : Input -> Game -> Game
+moveOn input game =
   let 
-    { space, paddle1, paddle2, delta } = input
+    { paddle1, paddle2, delta } = input
     { state, ball, player1, player2 } = game
 
     score1 = 
@@ -21,28 +35,19 @@ stepGame input game =
     score2 = 
       if ball.x < -halfWidth then 1 else 0
 
-    state' =
-      if space then
-        Play
-      else if score1 /= score2 then
-             Pause
-           else
-             state
-
     ball' =
-      if state == Pause then
-        ball
-      else
-        stepBall delta ball player1 player2
+      stepBall delta ball player1 player2
+                 
+    player1' =
+      stepPlayer delta paddle1 score1 player1
 
-    player1' = stepPlayer delta paddle1 score1 player1
-    player2' = stepPlayer delta paddle2 score2 player2
+    player2' =
+      stepPlayer delta paddle2 score2 player2
   in
     { game |
-             state = state',
-             ball = ball',
-             player1 = player1',
-             player2 = player2'
+        ball = ball',
+        player1 = player1',
+        player2 = player2'
     }
       
 stepBall : Time -> Ball -> Player -> Player -> Ball
@@ -91,14 +96,34 @@ delta : Signal Time
 delta =
   Signal.map inSeconds (fps 35)
 
-input : Signal Input
-input =
-  Signal.sampleOn delta <|
-        Signal.map4 Input
-                    Keyboard.space
+
+getSpace : Signal Action
+getSpace =
+  let
+    ifToggleState b =
+      case b of
+        True -> ToggleState
+        False -> NoOp
+  in
+    Signal.map ifToggleState  Keyboard.space
+
+
+getInput : Signal Action
+getInput =
+--  Signal.sampleOn delta <|
+         Signal.map3 inputToAction
                     (Signal.map .y Keyboard.wasd)
                     (Signal.map .y Keyboard.arrows)
                     delta
+
+inputToAction : Int -> Int -> Time -> Action
+inputToAction a b c =
+  MoveOn (Input a b c)
+
+input : Signal Action
+input =
+  Signal.merge getSpace getInput
+
 
 -- are n and m near each other?
 -- specifically are they within c of each other?
@@ -112,3 +137,14 @@ within : Ball -> Player -> Bool
 within ball player =
   near player.x 8 ball.x 
   && near player.y 20 ball.y
+
+toggleGameState : Game -> Game
+toggleGameState game = 
+  let
+    state' =
+      case game.state of
+        Play  -> Pause
+        Pause -> Play
+    
+  in
+    { game | state = state' }
