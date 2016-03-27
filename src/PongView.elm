@@ -27,7 +27,7 @@ dottedLine =
 
 txt f = leftAligned << f << Text.monospace << Text.color textColor << Text.fromString
 msg1 = "SPACE to start, WS and &uarr;&darr; to move"
-msg2 = "SPACE to pause the game"
+msg2 = "SPACE to pause the game, Ctrl for game reset"
 
 
 displayObj : Object a -> Shape -> Form

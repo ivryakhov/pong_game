@@ -35,6 +35,7 @@ type alias Game =
 
 type Action
   = ToggleState
+  | Reset
   | MoveOn Input
   | NoOp
 

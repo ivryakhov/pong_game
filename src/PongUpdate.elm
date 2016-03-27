@@ -15,6 +15,9 @@ stepGame action game =
     ToggleState ->
       toggleGameState game
 
+    Reset ->
+      defaultGame
+
     MoveOn input ->
       case game.state of
         Pause -> game
@@ -107,6 +110,10 @@ getSpace =
   in
     Signal.map ifToggleState  Keyboard.space
 
+getCtrl : Signal Action
+getCtrl =
+  Signal.map (always Reset) Keyboard.ctrl
+
 
 getInput : Signal Action
 getInput =
@@ -122,7 +129,7 @@ inputToAction a b c =
 
 input : Signal Action
 input =
-  Signal.merge getSpace getInput
+  Signal.mergeMany [ getSpace, getInput, getCtrl ]
 
 
 -- are n and m near each other?
@@ -148,3 +155,4 @@ toggleGameState game =
     
   in
     { game | state = state' }
+
