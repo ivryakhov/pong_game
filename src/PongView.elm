@@ -4,10 +4,18 @@ import Color exposing (..)
 import Text
 import Graphics.Collage exposing (..)
 import Graphics.Element exposing (..)
+import ObjectModel exposing (..)
 import PongModel exposing (..)
+import BallModel exposing (..)
+import PlayerModel exposing (..)
 
-pongGreen = rgb 39 174 96
-textColor = rgb 230 126 34
+
+pongGreen = rgb 125 221 79
+pongPurple = rgb 186 67 160
+pongOrange = rgb 255 150 91
+pongRed = rgb 238 85 115
+
+
 pongBoard =
   { color = pongGreen
   , width = 5
@@ -16,6 +24,7 @@ pongBoard =
   , dashing = []
   , dashOffset = 0
   }
+
 dottedLine = 
   { color = pongGreen
   , width = 2
@@ -25,14 +34,16 @@ dottedLine =
   , dashOffset = 0
   }
 
-txt f = leftAligned << f << Text.monospace << Text.color textColor << Text.fromString
+txt f = leftAligned << f << Text.monospace << Text.color pongPurple << Text.fromString
+
 msg1 = "SPACE to start, WS and &uarr;&darr; to move"
+
 msg2 = "SPACE to pause the game, Ctrl for game reset"
 
 
-displayObj : Object a -> Shape -> Form
-displayObj obj shape =
-  move (obj.x, obj.y) (filled pongGreen shape)
+displayObj : Object a -> Shape -> Color -> Form
+displayObj obj shape color =
+  move (obj.x, obj.y) (filled color shape)
 
 
 display : (Int, Int) -> Game -> Element
@@ -41,9 +52,10 @@ display (w,h) {state,ball,player1,player2} =
       collage gameWidth gameHeight
           [ outlined pongBoard (rect gameWidth gameHeight)
           , traced dottedLine (segment (-gameWidth,0) (gameWidth, 0))
-          , displayObj ball  (oval 15 15)
-          , displayObj player1 (rect 10 40)
-          , displayObj player2 (rect 10 40)
+          -- TODO: generalize shapes building
+          , displayObj ball  (ballShape ball) pongRed
+          , displayObj player1 (playerShape player1) pongPurple
+          , displayObj player2 (playerShape player2) pongPurple
           , toForm (scores player1 player2)
             |> move (0, gameHeight/2 - 40)
           , toForm (if state == Play then

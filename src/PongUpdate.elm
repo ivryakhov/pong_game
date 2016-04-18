@@ -1,8 +1,13 @@
 module PongUpdate where
 
 import PongModel exposing (..)
+import BallModel exposing (..)
+import PlayerModel exposing (..)
+import ObjectModel exposing (..)
 import Time exposing (..)
 import Keyboard
+import AnimationFrame exposing (frame)
+import Debug exposing (..)
 
 gameState : Signal Game
 gameState =
@@ -54,9 +59,65 @@ moveOn input game =
     }
       
 stepBall : Time -> Ball -> Player -> Player -> Ball
-stepBall t ({x,y,vx,vy} as ball) player1 player2 =
+stepBall t ({x,y,vx,vy, width, height, baseWd,  baseHh, prevVx, prevVy} as ball) player1 player2 =
   let
-    ball' = 
+    xt = Debug.watch "xt" <| x + vx * t
+    yt = Debug.watch "yt" <| y + vy * t
+
+    (x',y') = Debug.watch "(x', y')" <|
+      case abs(xt) >= halfWidth of
+        True -> (defaultBall.x, defaultBall.y)
+        False -> (xt, yt)
+
+    delta' = Debug.watch "delta" <| t
+    targetPlayer =
+      case x' <= 0 of
+        True -> player1
+        False -> player2
+
+    xColl = Debug.watch "xColl" <| 
+            calcXColl targetPlayer x' y' baseWd baseHh
+    yColl = Debug.watch "yColl" <|
+            halfHeight - 5/2 - (abs(y') + baseHh/2) 
+
+    (vx', xWdt, xHdt) = Debug.watch "vx'" <|
+      case xColl <= 0 && prevVx == vx of
+        True -> (-vx, xColl, -xColl)
+        False -> (vx, 0, 0)
+    
+    prevVx' = vx
+
+    (vy', yWdt, yHdt) = Debug.watch "vy" <|
+      case yColl <= 0 && prevVy == vy of
+        True -> (-vy, -yColl, yColl)
+        False -> (vy, 0, 0)
+
+    prevVy' = vy
+
+  in
+    { ball 
+      | x = x'
+      , y = y'
+      , vx = vx'
+      , vy = vy'
+      , prevVx = prevVx'
+      , prevVy = prevVy'
+      , width = baseWd + xWdt + yWdt
+      , height = baseHh + xHdt + yHdt
+    }
+
+    
+
+calcXColl : Player -> Float -> Float -> Float -> Float -> Float
+calcXColl player x y ballWd ballHh =
+  case y < player.y + player.height/2 && y > player.y - player.height/2 of
+    True ->  (abs(player.x) - player.width / 2) - (abs(x) + ballWd/2)
+    False -> 10
+
+
+
+
+{-    ball' = 
       { ball |
                vx = stepV vx (ball `within` player1)
                              (ball `within` player2),
@@ -69,7 +130,7 @@ stepBall t ({x,y,vx,vy} as ball) player1 player2 =
                x=0,
                y=0
       }
-    else stepObj t ball'
+    else stepObj t ball' -}
 
 stepPlayer : Time -> Int -> Int -> Player -> Player
 stepPlayer t dir points player =
@@ -97,7 +158,7 @@ stepV v lowerCollision upperCollision =
 
 delta : Signal Time
 delta =
-  Signal.map inSeconds (fps 35)
+  Signal.map inSeconds frame
 
 
 getSpace : Signal Action
@@ -117,11 +178,10 @@ getCtrl =
 
 getInput : Signal Action
 getInput =
---  Signal.sampleOn delta <|
-         Signal.map3 inputToAction
-                    (Signal.map .y Keyboard.wasd)
-                    (Signal.map .y Keyboard.arrows)
-                    delta
+  Signal.map3 inputToAction
+          (Signal.map .y Keyboard.wasd)
+          (Signal.map .y Keyboard.arrows)
+          delta
 
 inputToAction : Int -> Int -> Time -> Action
 inputToAction a b c =
