@@ -11,14 +11,20 @@ type alias Input =
   , delta : Time
   }
 
-type State = Play | Pause
+
+type State
+  = Play
+  | Pause
+
 
 type alias Game =
   { state : State
   , ball : Ball
   , player1 : Player
   , player2 : Player
+  , board : Board
   }
+
 
 type Action
   = ToggleState
@@ -26,14 +32,29 @@ type Action
   | MoveOn Input
   | NoOp
 
-(gameWidth, gameHeight) = (600,400)
-(halfWidth, halfHeight) = (300,200)
+
+type alias Board =
+  { halfWidth : Float
+  , halfHeight : Float
+  }
+
+
+defaultBoard : Board
+defaultBoard =
+  { halfWidth = 400
+  , halfHeight = 300
+  }
+
 
 defaultGame : Game
 defaultGame =
-  { state   = Pause
-  , ball    = defaultBall
-  , player1 = player (20-halfWidth)
-  , player2 = player (halfWidth-20)
-  }
-
+  let
+    board' =
+      defaultBoard
+  in
+    { state = Pause
+    , ball = defaultBall
+    , player1 = player (20 - board'.halfWidth)
+    , player2 = player (board'.halfWidth - 20)
+    , board = board'
+    }
