@@ -11,24 +11,24 @@ import PlayerModel exposing (..)
 
 
 pongGreen =
-  rgb 125 221 79
+  rgb 89 208 68
 
 
 pongPurple =
-  rgb 186 67 160
+  rgb 129 59 124
 
 
 pongOrange =
-  rgb 255 150 91
+  rgb 243 160 2
 
 
 pongRed =
-  rgb 238 85 115
+  rgb 242 77 152
 
 
-pongBoard =
+pongBoard board =
   { color = pongGreen
-  , width = 5
+  , width = board.halfBorderWidth * 2
   , cap = Flat
   , join = Smooth
   , dashing = []
@@ -76,12 +76,12 @@ display ( w, h ) { state, ball, player1, player2, board } =
       <| collage
           gameWidth
           gameHeight
-          [ outlined pongBoard (rect gameWidth gameHeight)
+          [ outlined (pongBoard board) (rect gameWidth gameHeight)
           , traced dottedLine (segment ( -gameWidth, 0 ) ( gameWidth, 0 ))
             -- TODO: generalize shapes building
           , displayObj ball (ballShape ball) pongRed
-          , displayObj player1 (playerShape player1) pongPurple
-          , displayObj player2 (playerShape player2) pongPurple
+          , displayObj player1 (playerShape player1) pongOrange
+          , displayObj player2 (playerShape player2) pongOrange
           , toForm (scores player1 player2)
               |> move ( 0, gameHeight / 2 - 40 )
           , toForm

@@ -36,6 +36,7 @@ type Action
 type alias Board =
   { halfWidth : Float
   , halfHeight : Float
+  , halfBorderWidth : Float
   }
 
 
@@ -43,6 +44,7 @@ defaultBoard : Board
 defaultBoard =
   { halfWidth = 400
   , halfHeight = 300
+  , halfBorderWidth = 2
   }
 
 

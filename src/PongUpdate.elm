@@ -4,6 +4,7 @@ import PongModel exposing (..)
 import BallModel exposing (..)
 import PlayerModel exposing (..)
 import ObjectModel exposing (..)
+import BallUpdate exposing (..)
 import Time exposing (..)
 import Keyboard
 import AnimationFrame exposing (frame)
@@ -45,20 +46,10 @@ moveOn input game =
     { state, ball, player1, player2, board } =
       game
 
-    score1 =
-      if ball.x > board.halfWidth then
-        1
-      else
-        0
-
-    score2 =
-      if ball.x < -board.halfWidth then
-        1
-      else
-        0
-
     ball' =
-      stepBall delta ball player1 player2 board
+      stepBall delta ball defaultBall player1 player2 board
+
+    (score1, score2) = ball'.updateScore
 
     player1' =
       stepPlayer delta paddle1 score1 player1 board
@@ -73,8 +64,8 @@ moveOn input game =
     }
 
 
-stepBall : Time -> Ball -> Player -> Player -> Board -> Ball
-stepBall t ({ x, y, vx, vy, width, height, baseWd, baseHh, prevVx, prevVy } as ball) player1 player2 board =
+{-stepBall' : Time -> Ball -> Player -> Player -> Board -> Ball
+stepBall' t ({ x, y, vx, vy, width, height, baseWd, baseHh, prevVx, prevVy } as ball) player1 player2 board =
   let
     xt =
       Debug.watch "xt" <| x + vx * t
@@ -146,17 +137,7 @@ stepBall t ({ x, y, vx, vy, width, height, baseWd, baseHh, prevVx, prevVy } as b
       , prevVy = prevVy'
       , width = baseWd + xWdt + yWdt
       , height = baseHh + xHdt + yHdt
-    }
-
-
-calcXColl : Player -> Float -> Float -> Float -> Float -> Float
-calcXColl player x y ballWd ballHh =
-  case y < player.y + player.height / 2 && y > player.y - player.height / 2 of
-    True ->
-      (abs (player.x) - player.width / 2) - (abs (x) + ballWd / 2)
-
-    False ->
-      10
+    } -}
 
 
 stepPlayer : Time -> Int -> Int -> Player -> Board -> Player

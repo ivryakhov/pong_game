@@ -6,8 +6,8 @@ import Graphics.Collage exposing (..)
 type alias Ball =
   Object { baseWd : Float
          , baseHh : Float
-         , prevVx : Float
-         , prevVy : Float
+         , isDirectionChanged : Bool
+         , updateScore : (Int, Int)
          }
 
 defaultBall : Ball
@@ -19,8 +19,8 @@ defaultBall = { x = 0
               , height = 15
               , baseWd = 15
               , baseHh = 15
-              , prevVx = 0
-              , prevVy = 0
+              , isDirectionChanged = False
+              , updateScore = (0, 0)
               }
 
 ballShape : Ball -> Shape
